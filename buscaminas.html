@@ -1,23 +1,21 @@
 <!DOCTYPE html>
 <html lang="es">
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
-        <script src="script.js"></script>
-        <style>
-            td{
-                padding: 0%;
-                height: 16px;
-                width: 16px;
-                border:1px solid black
-            }
-        </style>
-    </head>
-    <body onload="main()">
-        <table>
-            
-        </table>
-    </body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Buscaminas</title>
+  <script defer src="script.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; }
+    table { border-collapse: collapse; margin-top: 1rem; }
+    .cell { width: 24px; height: 24px; padding: 0; border: 1px solid #888; background: center / contain no-repeat url("btn.png"); cursor: pointer; }
+    #result { font-weight: bold; min-height: 1.5em; }
+  </style>
+</head>
+<body>
+  <h1>Buscaminas</h1>
+  <p>Haz clic para descubrir una casilla y clic derecho para colocar una bandera. La primera casilla es segura.</p>
+  <table aria-label="Tablero de buscaminas"></table>
+  <p id="result" role="status"></p>
+</body>
 </html>

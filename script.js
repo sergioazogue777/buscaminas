@@ -1,181 +1,128 @@
-primer=true
-var m=prompt("Indique el numero de minas")
-var tablero
-var destapados
-var bombasTapadas
-function main(){
-    var x=prompt("Indique numero de columnas")
-    var y=prompt("Indique el numero de filas")
-    tablero=new Array(y)
-    destapados=new Array(y)
-    tabla=document.getElementsByTagName("table")[0]
-    for(var i=0;i<y;i++){
-        linea=document.createElement("tr")
-        tabla.appendChild(linea)
-        tablero[i]=new Array(x)
-        destapados[i]=new Array(x)
-        for(var j=0;j<x;j++){
-            casilla=document.createElement("td")
-            casilla.setAttribute("onClick","destapar("+i+","+j+")")
-            casilla.addEventListener('contextmenu',function(ev){
-                var casilla = ev.target
-                y=Number(casilla.getAttribute("Onclick").charAt(9))
-                x=Number(casilla.getAttribute("Onclick").charAt(11))
-                ev.preventDefault()
-                ponerBandera(y,x)
-                return false
-            },false)
-            casilla.style.backgroundImage='url("btn.png")'
-            linea.appendChild(casilla)
-            tablero[i][j]=0
-            destapados[i][j]=false
-        }
-    }
-}
-function ponerMinas(minas,primY,primX){
-    puestas=0
-    alrededor=0
-    while(puestas!=minas){
-        y=Math.floor(Math.random()*tablero.length)
-        x=Math.floor(Math.random()*tablero[0].length)
-        if(tablero[y][x]==0 && (x!=primX || y!=primY)){
-            tablero[y][x]=-1
-            puestas++
-        }
-    }
-    for(var i=0;i<tablero[0].length;i++){
-        for(var j=0;j<tablero.length;j++){
-            if(tablero[j][i]!=-1){
-                alrededor=0
-                //comprueba alrededor
-                for(var x=i-1;x<=i+1;x++){
-                    if(x>=0 && x<tablero[0].length){//comprueba que no se salga horizontal
-                        for(var y=j-1;y<=j+1;y++){
-                            if(y>=0 && y<tablero.length){//comprueba que no se salga vertical
-                                if(tablero[y][x]==-1){//comprueba si es una mina
-                                    alrededor++
-                                }
-                            }
-                        }
-                    }
-                }
-                tablero[j][i]=alrededor
-            }
-        }
-    }
+'use strict';
+
+const state = {
+  board: [], revealed: [], flagged: [], firstMove: true,
+  gameOver: false, mines: 0, rows: 0, cols: 0
+};
+
+function readNumber(message, fallback, min, max) {
+  const response = prompt(message, String(fallback));
+  const value = Number(response);
+  return response !== null && Number.isInteger(value) && value >= min && value <= max ? value : fallback;
 }
 
-function destapar(y,x){
-    x=Number(x)
-    y=Number(y)
-    if(primer){
-        ponerMinas(m,y,x)
-        primer=false
-    }
-    if(!destapados[y][x]){
-        muestra(y,x)
-    }
-    
-}
-function muestra(y,x){
-    casilla=document.getElementsByTagName("table")[0]
-    casilla=casilla.getElementsByTagName("tr")[y]
-    casilla=casilla.getElementsByTagName("td")[x]
-    if(casilla.style.backgroundImage!='url("bandera.png")'){
-        destapados[y][x]=true
-        if(tablero[y][x]==0){
-            casilla.style.backgroundImage='url("0.png")'
-            console.log(x+", "+y)
-            for(var i=x-1;i<=x+1;i++){
-                if(i>=0 && i<tablero[0].length){//comprueba que no se salga horizontal
-                    for(var j=y-1;j<=y+1;j++){
-                        if(j>=0 && j<tablero.length){//comprueba que no se salga vertical
-                            destapar(j,i)
-                        }
-                    }
-                }
-            }
-        }else if(tablero[y][x]==1){
-            casilla.style.backgroundImage='url("1.png")'
-        }else if(tablero[y][x]==2){
-            casilla.style.backgroundImage='url("2.png")'
-        }else if(tablero[y][x]==3){
-            casilla.style.backgroundImage='url("3.png")'
-        }else if(tablero[y][x]==4){
-            casilla.style.backgroundImage='url("4.png")'
-        }else if(tablero[y][x]==5){
-            casilla.style.backgroundImage='url("5.png")'
-        }else if(tablero[y][x]==6){
-            casilla.style.backgroundImage='url("6.png")'
-        }else if(tablero[y][x]==7){
-            casilla.style.backgroundImage='url("7.png")'
-        }else if(tablero[y][x]==8){
-            casilla.style.backgroundImage='url("8.png")'
-        }else if(tablero[y][x]==-1){
-            casilla.style.backgroundImage='url("minaQuePeta.png")'
-            for(var i=0;i<tablero.length;i++){
-                for(var j=0;j<tablero[0].length;j++){
-                    casilla=document.getElementsByTagName("table")[0]
-                    casilla=casilla.getElementsByTagName("tr")[i]
-                    casilla=casilla.getElementsByTagName("td")[j]
-                    casilla.removeAttribute("OnClick")
-                    if(tablero[i][j]==-1 && (i!=y || j!=x)){
-                        if(casilla.style.backgroundImage=='url("btn.png")'){
-                            casilla.style.backgroundImage='url("restoDeMinas.png")'
-                        }else if(casilla.style.backgroundImage=='url("bandera.png")'){
-                            casilla.style.backgroundImage='url("minaBandera.png")'
-                        }
-                    }
-                }
-            }
-        }
-    }
-    if(haGanado()){
-        for(var i=0;i<tablero.length;i++){
-            for(var j=0;j<tablero[0].length;j++){
-                if(tablero[i][j]==-1 && (i!=y || j!=x)){
-                    casilla=document.getElementsByTagName("table")[0]
-                    casilla=casilla.getElementsByTagName("tr")[i]
-                    casilla=casilla.getElementsByTagName("td")[j]
-                    casilla.style.backgroundImage='url("restoDeMinas.png")'
-                }
-            }
-        }
-        alert("Has ganado!!!!!!!!!!!!!!!!:DDDDDDDDDDDDDD")
-    }
-}
-function haGanado(){
-    var gana=false
-    var num=0
-    for(var i=0;i<destapados.length;i++){
-        for(var y=0;y<destapados[0].length;y++){
-            if(destapados[i][y]){
-                num++
-            }
-        }
-    }
-    if(num==((tablero.length*tablero[0].length)-m)){
-        gana=true
-    }
-    return gana
-}
-function ponerBandera(y,x){
-    casilla=document.getElementsByTagName("table")[0]
-    casilla=casilla.getElementsByTagName("tr")[y]
-    casilla=casilla.getElementsByTagName("td")[x]
-    if(casilla.style.backgroundImage=='url("btn.png")'){
-        casilla.style.backgroundImage='url("bandera.png")'
-        casilla.addEventListener('contextmenu',function(ev){
-            var casilla = ev.target
-            y=Number(casilla.getAttribute("Onclick").charAt(9))
-            x=Number(casilla.getAttribute("Onclick").charAt(11))
-            ev.preventDefault()
-            ponerBandera(y,x)
-            return false
-        },false)
-    }else if(casilla.style.backgroundImage=='url("bandera.png")'){
-        casilla.style.backgroundImage='url("btn.png")'
-        
-    }
+function main() {
+  state.cols = readNumber('Número de columnas (5-30)', 10, 5, 30);
+  state.rows = readNumber('Número de filas (5-30)', 10, 5, 30);
+  state.mines = readNumber('Número de minas', 15, 1, state.rows * state.cols - 1);
 
+  const table = document.querySelector('table');
+  table.replaceChildren();
+  state.board = Array.from({ length: state.rows }, () => Array(state.cols).fill(0));
+  state.revealed = Array.from({ length: state.rows }, () => Array(state.cols).fill(false));
+  state.flagged = Array.from({ length: state.rows }, () => Array(state.cols).fill(false));
+
+  for (let row = 0; row < state.rows; row++) {
+    const tr = table.insertRow();
+    for (let col = 0; col < state.cols; col++) {
+      const cell = tr.insertCell();
+      cell.className = 'cell';
+      cell.setAttribute('aria-label', 'Casilla oculta');
+      cell.addEventListener('click', () => reveal(row, col));
+      cell.addEventListener('contextmenu', event => {
+        event.preventDefault();
+        toggleFlag(row, col);
+      });
+    }
+  }
 }
+
+function neighbors(row, col) {
+  const result = [];
+  for (let dy = -1; dy <= 1; dy++) {
+    for (let dx = -1; dx <= 1; dx++) {
+      if (dx === 0 && dy === 0) continue;
+      const y = row + dy, x = col + dx;
+      if (y >= 0 && y < state.rows && x >= 0 && x < state.cols) result.push([y, x]);
+    }
+  }
+  return result;
+}
+
+function placeMines(firstRow, firstCol) {
+  const candidates = [];
+  for (let row = 0; row < state.rows; row++) {
+    for (let col = 0; col < state.cols; col++) {
+      if (row !== firstRow || col !== firstCol) candidates.push([row, col]);
+    }
+  }
+  // Fisher-Yates: each available cell has the same chance of receiving a mine.
+  for (let i = candidates.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+  }
+  candidates.slice(0, state.mines).forEach(([row, col]) => { state.board[row][col] = -1; });
+  for (let row = 0; row < state.rows; row++) {
+    for (let col = 0; col < state.cols; col++) {
+      if (state.board[row][col] === -1) continue;
+      state.board[row][col] = neighbors(row, col).filter(([y, x]) => state.board[y][x] === -1).length;
+    }
+  }
+}
+
+function cellAt(row, col) {
+  return document.querySelector('table').rows[row].cells[col];
+}
+
+function paint(row, col, image, label) {
+  const cell = cellAt(row, col);
+  cell.style.backgroundImage = 'url("' + image + '")';
+  cell.setAttribute('aria-label', label);
+}
+
+function reveal(row, col) {
+  if (state.gameOver || state.flagged[row][col] || state.revealed[row][col]) return;
+  if (state.firstMove) {
+    placeMines(row, col);
+    state.firstMove = false;
+  }
+  const pending = [[row, col]];
+  while (pending.length) {
+    const [y, x] = pending.pop();
+    if (state.revealed[y][x] || state.flagged[y][x]) continue;
+    state.revealed[y][x] = true;
+    const value = state.board[y][x];
+    if (value === -1) {
+      paint(y, x, 'minaQuePeta.png', 'Mina');
+      finish(false);
+      return;
+    }
+    paint(y, x, value + '.png', value ? value + ' minas cercanas' : 'Vacía');
+    if (value === 0) neighbors(y, x).forEach(([ny, nx]) => {
+      if (!state.revealed[ny][nx] && !state.flagged[ny][nx]) pending.push([ny, nx]);
+    });
+  }
+  const uncovered = state.revealed.flat().filter(Boolean).length;
+  if (uncovered === state.rows * state.cols - state.mines) finish(true);
+}
+
+function toggleFlag(row, col) {
+  if (state.gameOver || state.revealed[row][col]) return;
+  state.flagged[row][col] = !state.flagged[row][col];
+  paint(row, col, state.flagged[row][col] ? 'bandera.png' : 'btn.png',
+    state.flagged[row][col] ? 'Bandera' : 'Casilla oculta');
+}
+
+function finish(won) {
+  state.gameOver = true;
+  for (let row = 0; row < state.rows; row++) {
+    for (let col = 0; col < state.cols; col++) {
+      if (state.board[row][col] === -1 && !state.revealed[row][col]) {
+        paint(row, col, state.flagged[row][col] ? 'minaBandera.png' : 'restoDeMinas.png', 'Mina');
+      }
+    }
+  }
+  const result = document.getElementById('result');
+  result.textContent = won ? '¡Has ganado!' : 'Has perdido. Vuelve a intentarlo.';
+}
+window.addEventListener('DOMContentLoaded', main);
